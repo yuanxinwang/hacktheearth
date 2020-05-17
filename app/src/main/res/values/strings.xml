@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">EndangeredFish</string>
+    <string name="title_activity_main">Endangered Fish</string>
+    <string name="title_activity_detail">Details</string>
+    <string name="aurora_trout">Aurora Trout</string>
+    <string name="acadian_whitefish">Acadian Whitefish</string>
+    <string name="salish_sucker">Salish Sucker</string>
+
+    <string name="aurora_trout_message">Aurora Trout.</string>
+    <string name="acadian_whitefish_message">Acadian Whitefish</string>
+    <string name="salish_sucker_message">Salish Sucker</string>
+    <string name="confirm">I found this fish here</string>
+</resources>
