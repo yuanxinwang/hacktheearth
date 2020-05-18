@@ -7,6 +7,7 @@ from . import views
 
 urlpatterns = [
     path('location/', views.FishLocationViewSet.as_view()),
+    path('detail/', views.FishDetailViewSet.as_view()),
     path('', views.index, name='index'),
     path('fish_form', fish_image_view, name = 'fish_form'), 
     path('success', success, name = 'success'), 

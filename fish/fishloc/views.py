@@ -1,4 +1,4 @@
-from .serializers import FishSerializer
+from .serializers import LocationSerializer, DetailSerializer
 from .forms import *
 from .models import FishLocation, FishDetail
 
@@ -9,7 +9,11 @@ from rest_framework import generics
 
 class FishLocationViewSet(generics.ListCreateAPIView):
     queryset = FishLocation.objects.all().order_by('name')
-    serializer_class = FishSerializer
+    serializer_class = LocationSerializer
+
+class FishDetailViewSet(generics.ListCreateAPIView):
+    queryset = FishDetail.objects.all().order_by('name')
+    serializer_class = DetailSerializer
 
 def index(request):
     locations = FishLocation.objects.all().order_by('name')
