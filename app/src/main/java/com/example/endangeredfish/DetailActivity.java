@@ -62,43 +62,22 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
         Intent intent = getIntent();
         final String name = intent.getStringExtra(MainActivity.FISH_NAME);
+        final String detail = intent.getStringExtra(MainActivity.FISH_DETAIL);
         textViewName = findViewById(R.id.name);
         final TextView textViewDetail = findViewById(R.id.detail);
         textViewName.setText(name);
+        textViewDetail.setText(detail);
         imageView = findViewById(R.id.imageView);
         button = findViewById(R.id.button);
         // Instantiate the RequestQueue.
         final RequestQueue queue = Volley.newRequestQueue(this);
-        final String url ="https://endangeredfish.wn.r.appspot.com/detail/";
-        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray responses) {
-                        try {
-                            for(int i = 0; i < responses.length(); i++) {
-                                JSONObject fish = (JSONObject) responses.get(i);
-                                Log.d("Response", name);
-                                Log.d("Response", fish.get("name").toString());
-                                if (name.equals(fish.get("name").toString())) {
-                                    textViewDetail.setText(fish.get("description").toString());
-                                    Log.d("Response", fish.get("description").toString());
-                                    new DownloadImageTask(imageView).execute(fish.get("img").toString());
-                                    break;
-                                }
-                            }
+        if(getIntent().hasExtra(MainActivity.FISH_IMAGE)) {
+            Bitmap b = BitmapFactory.decodeByteArray(
+                    getIntent().getByteArrayExtra(MainActivity.FISH_IMAGE),0,getIntent()
+                            .getByteArrayExtra(MainActivity.FISH_IMAGE).length);
+            imageView.setImageBitmap(b);
+        }
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("Response", "That didn't work!");
-            }
-        });
-
-        queue.add(stringRequest);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(
                 this);
@@ -120,8 +99,8 @@ public class DetailActivity extends AppCompatActivity {
                             Log.d("loc", "no location. create one");
                             mLastLocation = new Location("dummyprovider");
                             Random r = new Random();
-                            mLastLocation.setLatitude(35 + 10 * r.nextDouble());
-                            mLastLocation.setLongitude(-75 + 10 * r.nextDouble());
+                            mLastLocation.setLatitude(40 + 5 * r.nextDouble());
+                            mLastLocation.setLongitude(-80 + 5 * r.nextDouble());
                         }
                     }
                 });

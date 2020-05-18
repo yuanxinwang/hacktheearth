@@ -1,6 +1,9 @@
 package com.example.endangeredfish;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.android.volley.Request;
@@ -27,17 +30,54 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    
+
+    HashMap<String, String> detailsMap = new HashMap<>();
+    HashMap<String, Bitmap> imgMap = new HashMap<>();
+    public static final String FISH_NAME = "NAME";
+    public static final String FISH_DETAIL = "DETAIL";
+    public static final String FISH_IMAGE = "IMAGE";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        final RequestQueue queue = Volley.newRequestQueue(this);
+        final String url ="https://endangeredfish.wn.r.appspot.com/detail/";
+
+        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray responses) {
+                        try {
+                            for(int i = 0; i < responses.length(); i++) {
+                                JSONObject fish = (JSONObject) responses.get(i);
+                                String name = fish.get("name").toString();
+                                Log.d("Response", name);
+                                detailsMap.put(name, fish.get("description").toString());
+                                new MainActivity.DownloadImageTask(name).execute(fish.get("img").toString());
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("Response", "That didn't work!");
+            }
+        });
+
+        queue.add(stringRequest);
     }
 
     public void displayToast(String message) {
@@ -57,12 +97,36 @@ public class MainActivity extends AppCompatActivity {
         launchDetail(getString(R.string.salish_sucker));
     }
 
-    public static final String FISH_NAME = "NAME";
-    public static final String FISH_DETAIL = "DETAIL";
-
     private void launchDetail(final String name) {
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra(FISH_NAME, name);
+        intent.putExtra(FISH_DETAIL, detailsMap.get(name));
+        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+        imgMap.get(name).compress(Bitmap.CompressFormat.JPEG, 50, bs);
+        intent.putExtra(FISH_IMAGE, bs.toByteArray());
         startActivity(intent);
+    }
+
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        String key;
+        public DownloadImageTask(String key) {
+            this.key = key;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap bmp = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                bmp = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return bmp;
+        }
+        protected void onPostExecute(Bitmap result) {
+            imgMap.put(key, result);
+        }
     }
 }
