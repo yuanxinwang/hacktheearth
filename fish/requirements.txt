@@ -1,4 +1,4 @@
 django==2.1.15
-djangorestframework==3.11.0
+djangorestframework==3.11.2
 PyMySQL==0.9.3
 Pillow==7.1.2
